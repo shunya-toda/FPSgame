@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -13,16 +14,19 @@ public class PlayerController : MonoBehaviour
     private CharacterController controller;
     private Vector3 velocity;
     bool runFlag = false;
-    private float ZSpeed = 6.0f;
+    private float zSpeed = 6.0f;
     private float runSpeed = 13.0f;
     private float slidingSpeed = 17.0f;
-    bool slidingFlag = false;
-    private float coefficient = 0.9997f;
-    private float XSpeed = 5.0f;
-    private float jump = 10f;
+    private float xSpeed = 5.0f;
+    private float jump = 12f;
     private float gravity = -20f;
     private float crouchHeight=0.5f;
     private float normalHeight=2.0f;
+    private Shooting Shooting;
+
+    public int hp = 200;
+    private Slider Slider;
+    public GameObject slider;
     
 
     // Start is called before the first frame update
@@ -32,6 +36,9 @@ public class PlayerController : MonoBehaviour
         CameraTransform = transform.Find("Main Camera");
         this.myRigidbody = GetComponent<Rigidbody>();
         controller = GetComponent<CharacterController>();
+        Shooting = GameObject.Find("Shooting").GetComponent<Shooting>();
+        Slider = slider.GetComponent<Slider>();
+        
     }
 
     // Update is called once per frame
@@ -64,27 +71,31 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-       
-        velocity = new Vector3(Input.GetAxis("Horizontal") * XSpeed, velocity.y, Input.GetAxis("Vertical") * ZSpeed);
+        //移動
+        velocity = new Vector3(Input.GetAxis("Horizontal") * xSpeed, velocity.y, Input.GetAxis("Vertical") * zSpeed);
+        velocity = transform.TransformDirection(velocity);
+        velocity.y += gravity * Time.deltaTime;
+        controller.Move(velocity * Time.deltaTime);
+
+        //走る
         if (runFlag)
         {
-            ZSpeed = runSpeed;
+            zSpeed = runSpeed;
         }
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             if(runFlag == true)
             {
                 runFlag = false;
-                ZSpeed = 6.0f;
+                zSpeed = 6.0f;
             }
             else if (runFlag == false)
             {
                 runFlag = true;
-                slidingSpeed = 17f;
-                Debug.Log(slidingSpeed);
             }
         }
 
+        //しゃがみ、スライディング
         if(Input.GetKey(KeyCode.LeftControl))
         {
             if (controller.height >= crouchHeight)
@@ -92,28 +103,44 @@ public class PlayerController : MonoBehaviour
                 controller.height -= 0.02f;
             }
             else if (runFlag == true)
-                {
-                    ZSpeed = slidingSpeed;
-                    slidingSpeed *= coefficient;
-                }
+            {
+                zSpeed = slidingSpeed;
+            }
         }
         else
         {
+            slidingSpeed = 17f;
             if(controller.height<=normalHeight)
             {
                 controller.height += 0.02f;
             }
         }
 
+        //接地判定、ジャンプ
         if (controller.isGrounded)
         {
+            if(slidingSpeed>0)
+            {
+                slidingSpeed -= 0.005f;
+            }
             if (Input.GetKey(KeyCode.Space))
             {
                 velocity.y = jump;
             }
         }
-        velocity = transform.TransformDirection(velocity);
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+
+        //射撃
+        Shooting.ShotUpdate();
+
+        //体力
+        Slider.value = hp;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "EnemyBullet")
+        {
+            hp -= 5;
+        }
     }
 }

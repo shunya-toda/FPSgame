@@ -9,15 +9,17 @@ public class Shooting : MonoBehaviour
     public float shotSpeed;
     public int shotCount = 28;
     private float shotInterval;
+    public AudioClip shotSound;
+    AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
-    void Update()
+    public void ShotUpdate()
     {
         if(Input.GetKey(KeyCode.Mouse0))
         {
@@ -25,21 +27,26 @@ public class Shooting : MonoBehaviour
             
             if(shotInterval%30==0&&shotCount>0)
             {
-                GameObject gunflash = (GameObject)Instantiate(gunflashPrefab, transform.position, Quaternion.Euler(transform.parent.eulerAngles.x, transform.parent.eulerAngles.y - 90, 0));
-                Destroy(gunflash, 3f);
-                Debug.Log(this.name);
-
                 shotCount -= 1;
 
                 GameObject bullet = (GameObject)Instantiate(bulletPrefab, transform.position, Quaternion.Euler(transform.parent.eulerAngles.x, transform.parent.eulerAngles.y, 0));
                 Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
                 bulletRb.AddForce(transform.forward * shotSpeed);
-                Destroy(bullet, 3.0f);
+
+                GameObject gunflash = (GameObject)Instantiate(gunflashPrefab, transform.position, Quaternion.Euler(transform.parent.eulerAngles.x, transform.parent.eulerAngles.y - 90, 0));
+                Destroy(gunflash, 0.05f);
+                Debug.Log(this.name);
+
+                ShotSE();
             }
         }
         else if(Input.GetKeyDown(KeyCode.R))
         {
             shotCount = 28;
         }
+    }
+    public void ShotSE()
+    {
+        audioSource.PlayOneShot(shotSound);
     }
 }
