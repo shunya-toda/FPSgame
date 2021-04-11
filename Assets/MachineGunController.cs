@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GunController : MonoBehaviour
+public class MachineGunController : MonoBehaviour
 {
     private Animator myAnimator;
 

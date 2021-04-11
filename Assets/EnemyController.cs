@@ -5,12 +5,12 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
-    private GameObject player;
-    private GameObject[] desPoints;
-    private GameObject redWall;
-    private int nextRoute = 0;
-    private NavMeshAgent agent;
-    private Rigidbody myRigidbody;
+    private GameObject player; //プレイヤー
+    private GameObject[] desPoints; //目的地
+    private GameObject redWall; //シーン中のRedWall
+    private int nextRoute = 0; //目的地を判別
+    private NavMeshAgent agent; //NavMeshAgent
+    private Rigidbody myRigidbody; //
     private float distance;
     public int hp;
     private EnemyShooting EShooting;
