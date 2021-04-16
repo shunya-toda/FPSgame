@@ -11,14 +11,14 @@ public class Shooting : MonoBehaviour
     public int shotCount = 28; //残弾数
     private float shotInterval; //射撃間隔
     public AudioClip shotSound; //射撃音
-    AudioSource audioSource; //オーディオのコンポーネント
+    AudioSource audioSource; 
     private GameObject magazineText;　//残弾数の表示
 
     // Start is called before the first frame update
     void Start()
     {
-        audioSource = GetComponent<AudioSource>(); //AudioSourceを取得
-        magazineText = GameObject.Find("MagazineText"); //MagazineTextを取得
+        audioSource = GetComponent<AudioSource>(); 
+        magazineText = GameObject.Find("MagazineText");  //残弾数を表示するテキストを取得
     }
 
 
@@ -48,7 +48,6 @@ public class Shooting : MonoBehaviour
                 //射撃光を生成
                 GameObject gunflash = (GameObject)Instantiate(gunflashPrefab, transform.position, Quaternion.Euler(transform.parent.eulerAngles.x, transform.parent.eulerAngles.y - 90, 0));
                 Destroy(gunflash, 0.05f);
-                Debug.Log(this.name);
 
                 //射撃音を鳴らす
                 ShotSE();

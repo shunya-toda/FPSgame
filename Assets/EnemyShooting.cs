@@ -2,32 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Enemyの射撃
 public class EnemyShooting : MonoBehaviour
 {
-    public GameObject enemyBullet;
-    public float shotSpeed;
-    public int shotCount = 3;
-    private float shotInterval;
+    public GameObject enemyBullet; //Enemyの弾のPrefab
+    public float shotSpeed; //弾速
+    private float shotInterval; //射撃間隔
 
     // Start is called before the first frame update
     void Start()
     {
         
     }
-
-    // Update is called once per frame
+    
+    //Enemyの射撃
     public void EShotUpdate()
     {
         shotInterval += 1;
 
-        if (shotInterval % 60 == 0 && shotCount > 0)
+        if (shotInterval % 60 == 0)
         {
-            shotCount -= 1;
-
-            GameObject ebullet = (GameObject)Instantiate(enemyBullet, transform.position, Quaternion.Euler(transform.parent.eulerAngles.x, transform.parent.eulerAngles.y, 0));
-            Rigidbody bulletRb = ebullet.GetComponent<Rigidbody>();
+            GameObject eBullet = (GameObject)Instantiate(enemyBullet, transform.position, Quaternion.Euler(transform.parent.eulerAngles.x, transform.parent.eulerAngles.y, 0));
+            Rigidbody bulletRb = eBullet.GetComponent<Rigidbody>();
             bulletRb.AddForce(transform.forward * shotSpeed);
         }
-        shotCount = 3;
     }
 }

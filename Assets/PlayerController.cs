@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
+//プレイヤーの制御
 public class PlayerController : MonoBehaviour
 {
-    public GameObject Player; //プレイヤー
+    public GameObject player; //プレイヤー
     public GameObject Camera; //カメラ
-    private Transform PlayerTransform; //プレイヤーの位置
-    private Transform CameraTransform; //カメラの位置
-    private Rigidbody myRigidbody; //プレイヤーのRigidbody
-    private CharacterController controller; //プレイヤーのCharacterController
+    private Transform playerTransform; 
+    private Transform cameraTransform; 
+    private Rigidbody myRigidbody; 
+    private CharacterController controller; 
     private float yLimit; //視点の上下の制限
     private Vector3 velocity; //プレイヤーの速度
-    bool runFlag = false; //走る判定
+    bool runFlag = false; //走る
     private float zSpeed = 6.0f; //歩いている時のスピード
     private float runSpeed = 13.0f;　//走っている時のスピード
     private float slidingSpeed = 17.0f; //スライディング時のスピード
@@ -22,22 +24,27 @@ public class PlayerController : MonoBehaviour
     private float gravity = -20f;　//重力
     private float crouchHeight = 0.5f;　//しゃがんだ時の高さ
     private float normalHeight = 2.0f;　//通常時の高さ
-    private Shooting Shooting; //射撃
-    public int hp = 200;　//プレイヤーの体力値
-    public GameObject slider; //プレイヤーの体力ゲージ
-    private Slider Slider; //体力ゲージのSlider
-    private float deadLine = -10; //ゲームオーバーになる位置
+    private Shooting shooting; //射撃
+    private int hp = 200;　//プレイヤーの体力値
+    public GameObject hpGauge; //プレイヤーの体力ゲージ
+    private Slider slider; 
+    private float deadLine = -20; //ゲームオーバーになる位置
+    private GameObject gameOver; //ゲームオーバーの表示
+    private GameObject clear; //ゲームクリアの表示
+    private BossController boss; //ボス
 
     // Start is called before the first frame update
     void Start()
     {
-        PlayerTransform = GetComponent<Transform>(); //プレイヤーの位置を取得
-        CameraTransform = transform.Find("Main Camera"); //カメラの位置を取得
-        myRigidbody = GetComponent<Rigidbody>(); //プレイヤーのRigidbodyを取得
-        controller = GetComponent<CharacterController>(); //プレイヤーのCharacterControllerを取得
-        Shooting = GameObject.Find("Shooting").GetComponent<Shooting>(); //Shootingを取得
-        Slider = slider.GetComponent<Slider>(); //Sliderを取得
-
+        playerTransform = GetComponent<Transform>(); 
+        cameraTransform = transform.Find("Main Camera"); 
+        myRigidbody = GetComponent<Rigidbody>(); 
+        controller = GetComponent<CharacterController>(); 
+        shooting = GameObject.Find("Shooting").GetComponent<Shooting>(); //射撃のスクリプトを取得
+        slider = hpGauge.GetComponent<Slider>(); //プレイヤーの体力
+        gameOver = GameObject.Find("GameOverText"); //ゲームオーバーを表示するテキストを取得
+        clear = GameObject.Find("ClearText"); //ゲームクリアを表示するテキストを取得
+        boss = GameObject.Find("Boss").GetComponent<BossController>(); //ボスを取得
     }
 
     // Update is called once per frame
@@ -46,11 +53,11 @@ public class PlayerController : MonoBehaviour
         //視点移動
         float X_Rotation = Input.GetAxis("Mouse X");
         float Y_Rotation = Input.GetAxis("Mouse Y");
-        PlayerTransform.transform.Rotate(0, X_Rotation, 0);
+        playerTransform.transform.Rotate(0, X_Rotation, 0);
         yLimit = Camera.transform.localEulerAngles.x;
         if (yLimit > 290 && yLimit < 360 || yLimit > 0 && yLimit < 70)
         {
-            CameraTransform.transform.Rotate(-Y_Rotation, 0, 0);
+            cameraTransform.transform.Rotate(-Y_Rotation, 0, 0);
         }
         else
         {
@@ -58,14 +65,14 @@ public class PlayerController : MonoBehaviour
             {
                 if (Input.GetAxis("Mouse Y") < 0)
                 {
-                    CameraTransform.transform.Rotate(-Y_Rotation, 0, 0);
+                    cameraTransform.transform.Rotate(-Y_Rotation, 0, 0);
                 }
             }
             else
             {
                 if (Input.GetAxis("Mouse Y") > 0)
                 {
-                    CameraTransform.transform.Rotate(-Y_Rotation, 0, 0);
+                    cameraTransform.transform.Rotate(-Y_Rotation, 0, 0);
                 }
             }
         }
@@ -129,24 +136,45 @@ public class PlayerController : MonoBehaviour
         }
 
         //射撃
-        Shooting.ShotUpdate();
+        shooting.ShotUpdate();
 
         //体力
-        Slider.value = hp;
+        slider.value = hp;
 
-        /*//ゲームオーバー判定
+        //ゲームオーバー・クリア判定
         if(transform.position.y<deadLine||hp<=0)
         {
-            GameObject.Find("Canvas").GetComponent<GameOverController>().GameOver();
-        }*/
+            gameOver.GetComponent<Text>().text = "GAME OVER";
+            if(Input.GetMouseButtonDown(0))
+            {
+                SceneManager.LoadScene("SampleScene");
+            }
+        }
+        if(boss.bossHp<=0)
+        {
+            clear.GetComponent<Text>().text = "CLEAR!!";
+            if (Input.GetMouseButtonDown(0))
+            {
+                SceneManager.LoadScene("SampleScene");
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        //敵からのダメージ
+        //敵からのダメージ・回復
         if (other.gameObject.tag == "EnemyBullet")
         {
             hp -= 5;
+        }
+        if(other.gameObject.tag=="BossBullet")
+        {
+            hp -= 8;
+        }
+        if(other.gameObject.tag=="Heal")
+        {
+            GetComponent<ParticleSystem>().Play();
+            hp = 200;
         }
     }
 }

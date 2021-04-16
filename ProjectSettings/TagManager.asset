@@ -5,6 +5,11 @@ TagManager:
   serializedVersion: 2
   tags:
   - Shootable
+  - Pillar
+  - EnemyBullet
+  - bullet
+  - BossBullet
+  - Heal
   layers:
   - Default
   - TransparentFX
